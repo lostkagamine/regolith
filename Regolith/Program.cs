@@ -1,0 +1,1 @@
+﻿Lithograph.Core.Lithograph.Run();
