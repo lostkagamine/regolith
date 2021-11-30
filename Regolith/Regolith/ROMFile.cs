@@ -9,13 +9,13 @@ namespace Lithograph.Regolith
     public class ROMFile
     {
         // 16KB ROMs
-        public static readonly long MAX_SIZE = 16384;
+        public static readonly long MAX_SIZE = 2^20;
 
         // ASCII 'ROM16'
         public static readonly byte[] Magic = new byte[5]
             { 0x52, 0x4F, 0x4D, 0x31, 0x36 };
 
-        public byte[] Data = new byte[MAX_SIZE];
+        public byte[] Data = new byte[0];
 
         public void LoadFile(string path)
         {
@@ -27,11 +27,10 @@ namespace Lithograph.Regolith
             {
                 throw new Exception("Bad ROM file! Mismatched magic.");
             }
-            var read = fl.Read(Data, 0, (int)MAX_SIZE);
-            if (read != MAX_SIZE)
-            {
-                throw new Exception($"Bad ROM file! Read {read} != {MAX_SIZE}.");
-            }
+            byte[] d = new byte[MAX_SIZE];
+            var read = fl.Read(d, 0, (int)MAX_SIZE);
+            Data = new byte[read];
+            d.CopyTo(Data, 0);
         }
     }
 }
