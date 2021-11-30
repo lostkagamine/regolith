@@ -36,7 +36,8 @@ namespace Lithograph.Core
                 SDL.SDL_WINDOWPOS_CENTERED,
                 1600,
                 900,
-                SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
+                SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN |
+                SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 3);
             SDL.SDL_GL_SetAttribute(SDL.SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 2);

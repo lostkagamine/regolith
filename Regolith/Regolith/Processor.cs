@@ -23,6 +23,20 @@ namespace Lithograph.Regolith
         // Accessed via RWL and RWH
         public uint RW;
 
+        // Stack pointer
+        public uint RSP;
+
+        // Reserved registers
+        // Used for internal stuff. User should not
+        // be touching these otherwise the
+        // CPU might go down.
+
+        // Reserved Register: Interrupt Table
+        public uint RRIT;
+
+
+
+        // Flags
         public ushort Flags;
     }
 }
