@@ -15,7 +15,7 @@ namespace Lithograph.Regolith
         public static readonly byte[] Magic = new byte[5]
             { 0x52, 0x4F, 0x4D, 0x31, 0x36 };
 
-        public byte[] Data = new byte[0];
+        public byte[] Data = Array.Empty<byte>();
 
         public void LoadFile(string path)
         {
