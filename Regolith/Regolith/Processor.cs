@@ -6,6 +6,13 @@ using System.Threading.Tasks;
 
 namespace Lithograph.Regolith
 {
+    public enum CPUFlags
+    {
+        Zero = 1 << 0,
+        Overflow = 1 << 1,
+        
+    }
+
     public class Processor
     {
         // Next Address
@@ -114,47 +121,115 @@ namespace Lithograph.Regolith
 
         public void RunCycle()
         {
-            // all instructions are two bytes wide
-            var opcode = Memory[NA];
-            var odraw = Memory[NA + 1];
-            var opdata = Opdata.Parse(odraw);
-            var naOff = 0u;
-            
-            byte NextByte()
+            unchecked
             {
-                return Memory[NA + 2 + (naOff++)];
-            }
-            
-            ushort NextUshort()
-            {
-                var r = (ushort)0;
-                r += (ushort)(NextByte() << 8);
-                r += NextByte();
-                return r;
-            }
+                // all instructions are two bytes wide
+                var opcode = Memory[NA];
+                var odraw = Memory[NA + 1];
+                var opdata = Opdata.Parse(odraw);
+                var naOff = 0u;
 
-            ushort Data()
-            {
-                if ((opdata.Flags & OpdataFlags.Immediate) != 0)
+                byte NextByte()
                 {
-                    return NextUshort();
+                    return Memory[NA + 2 + (naOff++)];
                 }
-                return 0;
-            }
 
-            switch (opcode)
-            {
-                case Opcodes.Nop:
-                    break;
-                case Opcodes.Ret:
-                    NA = PopUint();
-                    return;
-                case Opcodes.Add:
-                    RX += Data();
-                    break;
-            }
+                ushort NextUshort()
+                {
+                    var r = (ushort)0;
+                    r += (ushort)(NextByte() << 8);
+                    r += NextByte();
+                    return r;
+                }
 
-            NA += 2 + naOff;
+                ushort Data()
+                {
+                    if ((opdata.Flags & OpdataFlags.Immediate) != 0)
+                    {
+                        return NextUshort();
+                    }
+                    return 0;
+                }
+
+                void UpdateFlags()
+                {
+                    if (RX == 0)
+                    {
+                        Flags = (ushort)(Flags & (ushort)CPUFlags.Zero);
+                    }
+                }
+                
+                switch (opcode)
+                {
+                    case Opcodes.Nop:
+                        break;
+                    case Opcodes.Ret:
+                        NA = PopUint();
+                        return;
+                    case Opcodes.Add:
+                        RX += Data();
+                        UpdateFlags();
+                        break;
+                    case Opcodes.TestEqual:
+                        {
+                            var regind = NextByte();
+                            var rd = GetValueForRindex((RegisterIndex)regind);
+                            var d = Data();
+                            if (rd == d)
+                            {
+                                Flags = (ushort)(Flags & (ushort)CPUFlags.Zero);
+                            }
+                            else
+                            {
+                                Flags = (ushort)(Flags & ~(ushort)CPUFlags.Zero);
+                            }
+                        }
+                        break;
+                    case Opcodes.TestLess:
+                        {
+                            var regind = NextByte();
+                            var rd = GetValueForRindex((RegisterIndex)regind);
+                            var d = Data();
+                            if (rd < d)
+                            {
+                                Flags = (ushort)(Flags & (ushort)CPUFlags.Zero);
+                            }
+                            else
+                            {
+                                Flags = (ushort)(Flags & ~(ushort)CPUFlags.Zero);
+                            }
+                        }
+                        break;
+                    case Opcodes.JumpAlways:
+                        {
+                            var d = Data();
+                            NA = d;
+                            return;
+                        }
+                    case Opcodes.JumpIfSet:
+                        {
+                            var d = Data();
+                            if ((Flags & (ushort)CPUFlags.Zero) > 0)
+                            {
+                                NA = d;
+                                return;
+                            }
+                            break;
+                        }
+                    case Opcodes.JumpIfNotSet:
+                        {
+                            var d = Data();
+                            if ((Flags & (ushort)CPUFlags.Zero) == 0)
+                            {
+                                NA = d;
+                                return;
+                            }
+                            break;
+                        }
+                }
+
+                NA += 2 + naOff;
+            }
         }
     }
 }
