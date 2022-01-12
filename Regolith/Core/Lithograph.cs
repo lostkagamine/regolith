@@ -11,6 +11,7 @@ using Lithograph.Graphics;
 using ImGuiNET;
 using Lithograph.Windowing;
 using Lithograph.Windowing.Windows;
+using Lithograph.Regolith;
 
 namespace Lithograph.Core
 {
@@ -34,8 +35,8 @@ namespace Lithograph.Core
             Window = SDL.SDL_CreateWindow("Lithograph",
                 SDL.SDL_WINDOWPOS_CENTERED,
                 SDL.SDL_WINDOWPOS_CENTERED,
-                1600,
-                900,
+                1280,
+                720,
                 SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN |
                 SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
 
@@ -58,6 +59,9 @@ namespace Lithograph.Core
             ImGuiImplOpenGL3.Init();
 
             WindowManager.Open<MenuBar>();
+
+            var mem = new MemorySpace();
+            GlobalState.CPU = new Processor(mem);
 
             var sw = new Stopwatch();
             sw.Start();

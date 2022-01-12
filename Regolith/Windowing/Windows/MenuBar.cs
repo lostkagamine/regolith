@@ -15,10 +15,23 @@ namespace Lithograph.Windowing.Windows
             {
                 if (ImGui.BeginMenu("Lithograph"))
                 {
-                    if (ImGui.MenuItem("About Lithograph..."))
+                    if (ImGui.MenuItem("About Lithograph"))
                         WindowManager.Open<AboutWindow>();
+                    ImGui.Separator();
                     if (ImGui.MenuItem("Quit"))
                         Environment.Exit(0);
+                    ImGui.EndMenu();
+                }
+
+                if (ImGui.BeginMenu("File"))
+                {
+                    ImGui.EndMenu();
+                }
+
+                if (ImGui.BeginMenu("View"))
+                {
+                    if (ImGui.MenuItem("Processor"))
+                        WindowManager.Open<ProcessorWindow>();
                     ImGui.EndMenu();
                 }
 
