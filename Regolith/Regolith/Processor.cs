@@ -10,7 +10,7 @@ namespace Lithograph.Regolith
     {
         // Next Address
         // Address of the next instruction to execute.
-        public ushort NA;
+        public uint NA;
 
         // General registers
         public ushort RX;
@@ -70,6 +70,11 @@ namespace Lithograph.Regolith
             Memory[--RSP] = (byte)((value & 0x0000_FFFF));
         }
 
+        void Push(byte value)
+        {
+            Memory[--RSP] = value;
+        }
+
         uint PopUint()
         {
             var val = 0u;
@@ -78,22 +83,78 @@ namespace Lithograph.Regolith
             return val;
         }
 
+        byte PopByte()
+        {
+            return Memory[++RSP];
+        }
+
+        uint GetValueForRindex(RegisterIndex idx)
+        {
+            switch (idx)
+            {
+                case RegisterIndex.RX:
+                    return RX;
+                case RegisterIndex.RA:
+                    return RA;
+                case RegisterIndex.RB:
+                    return RB;
+                case RegisterIndex.RC:
+                    return RC;
+                case RegisterIndex.RD:
+                    return RD;
+                case RegisterIndex.RE:
+                    return RE;
+                case RegisterIndex.RF:
+                    return RF;
+                case RegisterIndex.NA:
+                    return NA;
+            }
+            return 0;
+        }
+
         public void RunCycle()
         {
             // all instructions are two bytes wide
             var opcode = Memory[NA];
-            var opdata = Memory[NA + 1];
+            var odraw = Memory[NA + 1];
+            var opdata = Opdata.Parse(odraw);
+            var naOff = 0u;
+            
+            byte NextByte()
+            {
+                return Memory[NA + 2 + (naOff++)];
+            }
+            
+            ushort NextUshort()
+            {
+                var r = (ushort)0;
+                r += (ushort)(NextByte() << 8);
+                r += NextByte();
+                return r;
+            }
+
+            ushort Data()
+            {
+                if ((opdata.Flags & OpdataFlags.Immediate) != 0)
+                {
+                    return NextUshort();
+                }
+                return 0;
+            }
 
             switch (opcode)
             {
                 case Opcodes.Nop:
                     break;
                 case Opcodes.Ret:
-                    // TODO
+                    NA = PopUint();
+                    return;
+                case Opcodes.Add:
+                    RX += Data();
                     break;
             }
 
-            NA += 2;
+            NA += 2 + naOff;
         }
     }
 }
