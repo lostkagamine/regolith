@@ -144,10 +144,6 @@ namespace Lithograph.Regolith
 
                 ushort Data()
                 {
-                    if ((opdata.Flags & OpdataFlags.Immediate) != 0)
-                    {
-                        return NextUshort();
-                    }
                     return 0;
                 }
 

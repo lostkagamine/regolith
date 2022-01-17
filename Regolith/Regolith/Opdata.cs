@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace Lithograph.Regolith
 {
-    public enum OpdataFlags
+    public enum AddressMode
     {
-        Immediate = 1 << 0,
-        RegisterPlusOffset = 1 << 1
+        Immediate = 1,
+        MemoryAtImmediate = 1 << 1,
+        MemoryAtRegisterValue = 1 << 2
     }
 
     public enum RegisterIndex
@@ -27,14 +28,14 @@ namespace Lithograph.Regolith
     public class Opdata
     {
         public RegisterIndex Register;
-        public OpdataFlags Flags;
+        public AddressMode Mode;
 
         public static Opdata Parse(byte od)
         {
             var res = new Opdata();
 
             res.Register = (RegisterIndex)((od & 0xF0) >> 4);
-            res.Flags = (OpdataFlags)(od & 0x0F);
+            res.Mode = (AddressMode)(od & 0x0F);
 
             return res;
         }
