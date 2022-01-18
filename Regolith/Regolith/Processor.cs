@@ -144,6 +144,15 @@ namespace Lithograph.Regolith
 
                 ushort Data()
                 {
+                    switch (opdata.Mode)
+                    {
+                        case AddressMode.Immediate:
+                            return NextUshort();
+                        case AddressMode.MemoryAtImmediate:
+                            return Memory[NextUshort()];
+                        case AddressMode.MemoryAtRegisterValue:
+                            return Memory[GetValueForRindex(opdata.Register)];
+                    }
                     return 0;
                 }
 
